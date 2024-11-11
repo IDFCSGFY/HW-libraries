@@ -5,10 +5,11 @@ import HW.libraries.exception.EmployeeAlreadyAddedException;
 import HW.libraries.exception.EmployeeNotFoundException;
 import HW.libraries.exception.EmployeeStorageIsFullException;
 import HW.libraries.model.Employee;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static org.apache.commons.lang3.StringUtils.*;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -22,34 +23,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public Employee addEmployee(String firstName, String lastName) {
-        if (employees.size() >= MAX_EMPLOYEE_COUNT) {
-            throw new EmployeeStorageIsFullException();
-        }
-        if (StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)
-                || !StringUtils.containsOnly(firstName, LETTERS) || !StringUtils.containsOnly(lastName, LETTERS)) {
-            throw new BadParamException();
-        }
-        firstName = StringUtils.capitalize(firstName);
-        lastName = StringUtils.capitalize(lastName);
-        Employee target = new Employee(firstName, lastName);
-        String tempKey = String.join("_", firstName, lastName);
-        if (employees.containsKey(tempKey)) {
-            throw new EmployeeAlreadyAddedException();
-        }
-        employees.put(tempKey, target);
-        return target;
+        return addEmployee(firstName, lastName, -1, -1);
     }
 
     public Employee addEmployee(String firstName, String lastName, int dID, int wage) {
         if (employees.size() >= MAX_EMPLOYEE_COUNT) {
             throw new EmployeeStorageIsFullException();
         }
-        if (StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)
-                || !StringUtils.containsOnly(firstName, LETTERS) || !StringUtils.containsOnly(lastName, LETTERS)) {
-            throw new BadParamException();
-        }
-        firstName = StringUtils.capitalize(firstName);
-        lastName = StringUtils.capitalize(lastName);
+        checkParamValidity(firstName, lastName);
+
+        firstName = prepareName(firstName);
+        lastName = prepareName(lastName);
+
         Employee target = new Employee(firstName, lastName, dID, wage);
         String tempKey = String.join("_", firstName, lastName);
         if (employees.containsKey(tempKey)) {
@@ -60,12 +45,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public Employee removeEmployee(String firstName, String lastName) {
-        if (StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)
-                || !StringUtils.containsOnly(firstName, LETTERS) || !StringUtils.containsOnly(lastName, LETTERS)) {
-            throw new BadParamException();
-        }
-        firstName = StringUtils.capitalize(firstName);
-        lastName = StringUtils.capitalize(lastName);
+        checkParamValidity(firstName, lastName);
+
+        firstName = prepareName(firstName);
+        lastName = prepareName(lastName);
+
         Employee target = new Employee(firstName, lastName);
         String tempKey = String.join("_", firstName, lastName);
         if (!employees.containsKey(tempKey)) {
@@ -76,12 +60,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public Employee findEmployee(String firstName, String lastName) {
-        if (StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)
-                || !StringUtils.containsOnly(firstName, LETTERS) || !StringUtils.containsOnly(lastName, LETTERS)) {
-            throw new BadParamException();
-        }
-        firstName = StringUtils.capitalize(firstName);
-        lastName = StringUtils.capitalize(lastName);
+        checkParamValidity(firstName, lastName);
+
+        firstName = prepareName(firstName);
+        lastName = prepareName(lastName);
+
         String tempKey = String.join("_", firstName, lastName);
         if (!employees.containsKey(tempKey)) {
             throw new EmployeeNotFoundException();
@@ -91,5 +74,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     public Map<String, Employee> getAllEmployees() {
         return Map.copyOf(employees);
+    }
+
+    private void checkParamValidity(String firstName, String lastName) {
+        if (isEmpty(firstName) || isEmpty(lastName)
+                || !containsOnly(firstName, LETTERS) || !containsOnly(lastName, LETTERS)) {
+            throw new BadParamException();
+        }
+    }
+
+    private String prepareName(String name) {
+        name = strip(name);
+        name = lowerCase(name);
+        name = capitalize(name);
+        return name;
     }
 }
