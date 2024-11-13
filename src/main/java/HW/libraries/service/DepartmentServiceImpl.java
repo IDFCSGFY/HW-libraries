@@ -4,17 +4,32 @@ import HW.libraries.model.Employee;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
 
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
     public DepartmentServiceImpl(EmployeeService employeeService) {
         this.employeeService = employeeService;
+    }
+
+    @Override
+    public List<Employee> getWholeDepartment(int department) {
+        return employeeService.getAllEmployees().values().stream()
+                .filter(e->e.getDepartmentID()==department)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int calculateDepartmentCollectiveSalary(int department) {
+        return employeeService.getAllEmployees().values().stream()
+                .filter(e -> e.getDepartmentID()==department)
+                .flatMapToInt(e-> IntStream.of(e.getWage()))
+                .sum();
     }
 
     @Override
@@ -31,13 +46,6 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .filter(e->e.getDepartmentID()==department)
                 .min(Comparator.comparing(Employee::getWage))
                 .get();
-    }
-
-    @Override
-    public List<Employee> getWholeDepartment(int department) {
-        return employeeService.getAllEmployees().values().stream()
-                .filter(e->e.getDepartmentID()==department)
-                .collect(Collectors.toList());
     }
 
     @Override
