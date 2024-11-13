@@ -33,7 +33,7 @@ public class DepartmentController {
     }
 
     @GetMapping(path = "/{id}/salary/min")
-    Employee findMinSalary(@RequestParam(value = "id", required = false) int departmentID) {
+    Employee findMinSalary(@PathVariable(value = "id", required = false) int departmentID) {
         return departmentService.findLowestSalary(departmentID);
     }
 
