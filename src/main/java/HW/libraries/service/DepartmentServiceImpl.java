@@ -1,43 +1,69 @@
 package HW.libraries.service;
 
+import HW.libraries.exception.BadParamException;
+import HW.libraries.exception.DepartmentNotFoundException;
+import HW.libraries.exception.EmployeeNotFoundException;
 import HW.libraries.model.Employee;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
 
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
     public DepartmentServiceImpl(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
 
-    @Override
-    public Employee findHighestSalary(int department) {
+    private boolean isExisting(int departmentID) {
         return employeeService.getAllEmployees().values().stream()
-                .filter(e->e.getDepartmentID()==department)
+                .anyMatch(e -> e.getDepartmentID() == departmentID);
+    }
+
+    private void checkIfValid(Integer departmentID) {
+        if (!isExisting(departmentID)) {
+            throw new DepartmentNotFoundException();
+        }
+    }
+
+    @Override
+    public List<Employee> getWholeDepartment(Integer department) {
+        checkIfValid(department);
+        return employeeService.getAllEmployees().values().stream()
+                .filter(e -> e.getDepartmentID() == department)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int calculateDepartmentCollectiveSalary(Integer department) {
+        checkIfValid(department);
+        return employeeService.getAllEmployees().values().stream()
+                .filter(e -> e.getDepartmentID() == department)
+                .flatMapToInt(e -> IntStream.of(e.getWage()))
+                .sum();
+    }
+
+    @Override
+    public Employee findHighestSalary(Integer department) {
+        checkIfValid(department);
+        return employeeService.getAllEmployees().values().stream()
+                .filter(e -> e.getDepartmentID() == department)
                 .max(Comparator.comparing(Employee::getWage))
                 .get();
     }
 
     @Override
-    public Employee findLowestSalary(int department) {
+    public Employee findLowestSalary(Integer department) {
+        checkIfValid(department);
         return employeeService.getAllEmployees().values().stream()
-                .filter(e->e.getDepartmentID()==department)
+                .filter(e -> e.getDepartmentID() == department)
                 .min(Comparator.comparing(Employee::getWage))
                 .get();
-    }
-
-    @Override
-    public List<Employee> getWholeDepartment(int department) {
-        return employeeService.getAllEmployees().values().stream()
-                .filter(e->e.getDepartmentID()==department)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -45,7 +71,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         return employeeService.getAllEmployees().values().stream()
                 .collect(Collectors.toMap(
                         Employee::getDepartmentID,
-                        e->new ArrayList<>(List.of(e)),
+                        e -> new ArrayList<>(List.of(e)),
                         (x, y) -> new ArrayList<>(Stream.concat(x.stream(), y.stream()).collect(Collectors.toList()))
                 ));
     }
