@@ -18,22 +18,22 @@ public class DepartmentController {
     }
 
     @GetMapping(value = "/{id}/employees")
-    Collection<Employee> showDepartment(@PathVariable(value = "id", required = false) int departmentID) {
+    Collection<Employee> showDepartment(@PathVariable(value = "id", required = false) Integer departmentID) {
         return departmentService.getWholeDepartment(departmentID);
     }
 
     @GetMapping(path = "/{id}/salary/sum")
-    int sumDepartmentSalaries(@PathVariable(value = "id", required = false) int departmentID) {
+    int sumDepartmentSalaries(@PathVariable(value = "id", required = false) Integer departmentID) {
         return departmentService.calculateDepartmentCollectiveSalary(departmentID);
     }
 
     @GetMapping(path = "/{id}/salary/max")
-    Employee findMaxSalary(@PathVariable(value = "id", required = false) int departmentID) {
+    Employee findMaxSalary(@PathVariable(value = "id", required = false) Integer departmentID) {
         return departmentService.findHighestSalary(departmentID);
     }
 
     @GetMapping(path = "/{id}/salary/min")
-    Employee findMinSalary(@PathVariable(value = "id", required = false) int departmentID) {
+    Employee findMinSalary(@PathVariable(value = "id", required = false) Integer departmentID) {
         return departmentService.findLowestSalary(departmentID);
     }
 

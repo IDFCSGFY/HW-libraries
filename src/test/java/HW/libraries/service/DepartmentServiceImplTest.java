@@ -1,5 +1,8 @@
 package HW.libraries.service;
 
+import HW.libraries.exception.BadParamException;
+import HW.libraries.exception.DepartmentNotFoundException;
+import HW.libraries.exception.EmployeeNotFoundException;
 import HW.libraries.model.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +35,7 @@ class DepartmentServiceImplTest {
     }
 
     @Test
-    void shouldCollectCorrectListOfEmployeesWhenGetWholeDepartment() {
+    public void shouldCollectCorrectListOfEmployeesWhenGetWholeDepartment() {
         List<Employee> actual = out.getWholeDepartment(1);
         assertTrue(actual.contains(D1_EMPLOYEE_POOR));
         assertTrue(actual.contains(D1_EMPLOYEE_RICH));
@@ -49,7 +52,7 @@ class DepartmentServiceImplTest {
     }
 
     @Test
-    void shouldCalculateCorrectSumWhenCalculateDepartmentCollectiveSalary() {
+    public void shouldCalculateCorrectSumWhenCalculateDepartmentCollectiveSalary() {
         int actual = out.calculateDepartmentCollectiveSalary(1);
         int expected = D1_EMPLOYEE_POOR.getWage() + D1_EMPLOYEE_RICH.getWage();
         assertEquals(expected, actual);
@@ -64,23 +67,23 @@ class DepartmentServiceImplTest {
     }
 
     @Test
-    void findHighestSalary() {
+    public void shouldFindHighestSalary() {
         assertEquals(D1_EMPLOYEE_RICH, out.findHighestSalary(1));
         assertEquals(D2_EMPLOYEE_RICH, out.findHighestSalary(2));
         assertEquals(D3_EMPLOYEE_SINGLE, out.findHighestSalary(3));
     }
 
     @Test
-    void findLowestSalary() {
+    public void shouldFindLowestSalary() {
         assertEquals(D1_EMPLOYEE_POOR, out.findLowestSalary(1));
         assertEquals(D2_EMPLOYEE_POOR, out.findLowestSalary(2));
         assertEquals(D3_EMPLOYEE_SINGLE, out.findLowestSalary(3));
     }
 
     @Test
-    void getAllConsideringDepartments() {
+    public void shouldCollectCorrectMapWhenGetAllConsideringDepartments() {
         Map<Integer, ArrayList<Employee>> actual = out.getAllConsideringDepartments();
-        
+
         assertTrue(actual.containsKey(1));
         assertTrue(actual.get(1).contains(D1_EMPLOYEE_POOR));
         assertTrue(actual.get(1).contains(D1_EMPLOYEE_RICH));
@@ -94,5 +97,22 @@ class DepartmentServiceImplTest {
         assertTrue(actual.containsKey(3));
         assertTrue(actual.get(3).contains(D3_EMPLOYEE_SINGLE));
         assertEquals(1, actual.get(3).size());
+    }
+
+    @Test
+    public void shouldThrowDepartmentNotFoundException() {
+        //by private checkIfValid() method
+        assertThrows(DepartmentNotFoundException.class, () -> out.getWholeDepartment(0));
+        assertThrows(DepartmentNotFoundException.class, () -> out.calculateDepartmentCollectiveSalary(0));
+        assertThrows(DepartmentNotFoundException.class, () -> out.findHighestSalary(0));
+        assertThrows(DepartmentNotFoundException.class, () -> out.findLowestSalary(0));
+        assertThrows(DepartmentNotFoundException.class, () -> out.getWholeDepartment(4));
+        assertThrows(DepartmentNotFoundException.class, () -> out.calculateDepartmentCollectiveSalary(4));
+        assertThrows(DepartmentNotFoundException.class, () -> out.findHighestSalary(4));
+        assertThrows(DepartmentNotFoundException.class, () -> out.findLowestSalary(4));
+        assertThrows(DepartmentNotFoundException.class, () -> out.getWholeDepartment(-1));
+        assertThrows(DepartmentNotFoundException.class, () -> out.calculateDepartmentCollectiveSalary(-1));
+        assertThrows(DepartmentNotFoundException.class, () -> out.findHighestSalary(-1));
+        assertThrows(DepartmentNotFoundException.class, () -> out.findLowestSalary(-1));
     }
 }
